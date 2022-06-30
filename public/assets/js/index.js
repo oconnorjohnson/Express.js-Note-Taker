@@ -1,8 +1,8 @@
-let noteTitle = $(".note-title");
-let noteText = $(".note-textarea");
-let saveNoteBtn = $(".save-note");
-let newNoteBtn = $(".new-note");
-let noteList = $(".list-container .list-group");
+let noteTitle;
+let noteText;
+let saveNoteBtn;
+let newNoteBtn;
+let noteList;
 
 if (window.location.pathname === '/notes') {
   noteTitle = document.querySelector('.note-title');
@@ -50,13 +50,6 @@ const deleteNote = (id) =>
     },
   });
 
-var editNote = function(id) {
-  return $.ajax({
-    url: "api/notes/" + id,
-    method: "PUT"
-  })
-};
-
 const renderActiveNote = () => {
   hide(saveNoteBtn);
 
@@ -82,28 +75,6 @@ const handleNoteSave = () => {
     getAndRenderNotes();
     renderActiveNote();
   });
-};
-
-var handleEdit = function (event) {
-  event.stopPropagation();
-  handleNoteView();
-  console.log("got here")
-  var note = $(this)
-    .parent(".list-group-item")
-    .data();
-
-    if (activeNote.id === note.id) {
-      activeNote = {
-        title: $noteTitle.val(),
-        text: $noteText.val()
-      };
-    }
-  editNote(note.id).then(function() {
-    saveNote(activeNote);
-    getAndRenderNotes();
-    renderActiveNote();
-  })
-    console.log(note)
 };
 
 // Delete the clicked note
@@ -138,10 +109,14 @@ const handleNewNoteView = (e) => {
 };
 
 const handleRenderSaveBtn = () => {
+  console.log('keyup/down')
   if (!noteTitle.value.trim() || !noteText.value.trim()) {
     hide(saveNoteBtn);
+    console.log("hide")
   } else {
+    console.log("show")
     show(saveNoteBtn);
+   
   }
 };
 

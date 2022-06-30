@@ -1,75 +1,64 @@
-const tips = require('express').Router();
-const { json } = require('express');
+const notes = require('express').Router();
 const { v4: uuidv4 } = require('uuid');
-const { fromString } = require('uuidv4');
 const {
   readFromFile,
   writeToFile,
   readAndAppend,
 } = require('./helper.js')
+const fs = require("fs")
 
 // GET Route for retrieving all the tips
-tips.get('/notes', (req, res) => {
-  readFromFile('db/db.json').then((data) => res.json(JSON.parse(data)));
-});
-
-// // GET Route for a specific tip
-// tips.get('/api/notes', (req, res) => {
-//   const tipId = req.params.tip_id;
-//   r('../db/db.json')
-//     .then((data) => JSON.parse(data))
-//     .then((json) => {
-//       const result = json.filter((tip) => tip.tip_id === tipId);
-//       return result.length > 0
-//         ? res.json(result)
-//         : res.json('No note with that ID');
-//     });
-// });
-
-// DELETE Route for a specific tip
-// tips.delete(`/api/notes/:id`, (req, res) => {
-//   const tipId = req.params.tip_id;
-//   deleteNote('../db/db.json')
-//     .then((data) => JSON.parse(data))
-//     .then((json) => {
-//       // Make a new array of all tips except the one with the ID provided in the URL
-//       const result = json.filter((tip) => tip.tip_id !== tipId);
-
-//       // Save that array to the filesystem
-//       saveNote('../db/db.json', result);
-
-//       // Respond to the DELETE request
-//       res.json(`Note ${tipId} has been deleted 🗑️`);
-//     });
-// });
-
-// POST Route for a new note
-tips.post('/notes', (req, res) => {
-  console.log(req.body);
-  console.log("post route for new Note")
-
-  const { title, text } = req.body;
-
-  if (req.body) {
-    const newTip = { // creates a new note with << that design
-      title,
-      text,
-      tip_id: uuidv4(),
-    };
-    readFromFile('db/db.json').then(data => {
-      const savedInfo = JSON.parse(data); // parse db.json
-      console.log(newTip);
-      savedInfo.push(newTip); // add new tip to parsed db.json
-      writeToFile('db/db.json', savedInfo); // writes new savedInfo new array to db.json
+notes.get("/notes", function (req,res) {
+    fs.readFile("db/db.json", 'utf8', function (error, data) {
+        if (error) {
+            return console.log(error)
+        }
+        console.log("this is Notes", data)
+        res.json(JSON.parse(data));
     });
-    
-    res.json(`Note added successfully 🚀`);
-  } else {
-    res.error('Error in adding Note');
-  }
 });
 
-module.exports = tips;
+notes.delete("/notes/:id", function (req, res) {
+    const noteId = JSON.parse(req.params.id)
+    console.log(noteId)
+    fs.readFile("db/db.json", 'utf8', function (error, notes) {
+        if (error) {
+            return console.log(error)
+        }
+        notes = JSON.parse(notes)
+
+        notes = notes.filter(val => val.id !== noteId) 
+
+        fs.writeFile("db/db.json", JSON.stringify(notes), function (error, data) {
+            if (error) {
+                return error
+            }
+            res.json(notes)
+        });
+    });
+});
+
+notes.put("/notes/:id", function(req, res) {
+    const noteId = Json.parse(req.params.id)
+    console.log(noteId)
+    fs.readFile("db/db.json", 'utf8', function(error, notes) {
+        if (error ){
+            return console.log(error)
+        }
+        notes.JSONparse(notes)
+
+        notes = notes.filter(val => val.id !== noteId)
+
+        fs.writeFile("db/db.json", JSON.stringify(notes), function (error, data) {
+            if (error) {
+              return error
+            }
+            res.json(notes)
+        });
+    });
+});
+
+module.exports = notes;
 
 
 
